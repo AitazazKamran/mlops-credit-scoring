@@ -233,6 +233,8 @@ services:
     volumes:
       - ./spark:/opt/spark-jobs
       - ./data:/opt/data
+      - ./mlflow:/opt/mlflow-jobs # ← add this line
+
     ports:
       - "4040:4040"
     command: tail -f /dev/null
