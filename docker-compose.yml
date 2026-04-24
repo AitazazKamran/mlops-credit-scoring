@@ -241,6 +241,22 @@ services:
     networks:
       - mlops-net
     restart: unless-stopped
+
+  # ─────────────────────────────────────────
+  # PSI Drift Exporter
+  # ─────────────────────────────────────────
+  psi-exporter:
+    image: python:3.11-slim
+    container_name: psi-exporter
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./monitoring:/app
+    command: >
+      bash -c "pip install psycopg2-binary prometheus_client numpy --quiet && python /app/psi_exporter.py"
+    networks:
+      - mlops-net
+    restart: unless-stopped
 # ─────────────────────────────────────────
 # Named volumes (persist across restarts)
 # ─────────────────────────────────────────
