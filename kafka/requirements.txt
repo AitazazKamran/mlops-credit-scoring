@@ -1,0 +1,2 @@
+kafka-python-ng
+pandas>=2.2.0
