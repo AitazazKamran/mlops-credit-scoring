@@ -187,13 +187,34 @@ View results at http://localhost:5000
 docker exec -it spark bash -c "python3 /opt/spark-jobs/streaming_job.py"
 ```
 
-### 14. Start PSI drift monitoring
+### 14. Fix Prometheus scrape config
+
+Get Spark container IP:
+```bash
+docker inspect spark --format "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}"
+```
+
+Update `monitoring/prometheus.yml` with that IP:
+```yaml
+- job_name: "psi-exporter"
+  static_configs:
+    - targets: ["YOUR_SPARK_IP:8000"]
+```
+
+Then restart Prometheus:
+```bash
+docker compose restart prometheus
+```
+
+> **Note:** If you recreate the Spark container, its IP may change. Repeat this step if Grafana shows "No data".
+
+### 15. Start PSI drift monitoring
 
 ```bash
 docker exec -it spark bash -c "python3 /opt/monitoring/psi_exporter.py"
 ```
 
-### 15. Import Grafana dashboard
+### 16. Import Grafana dashboard
 
 - Open http://localhost:3000
 - Dashboards → New → Import
@@ -241,7 +262,8 @@ mlops-credit-scoring/
 │   ├── batch_job.py              # Bronze → Silver → Gold pipeline
 │   └── streaming_job.py          # Real-time predictions
 ├── tests/
-│   └── test_pipeline.py          # Unit tests (CI/CD)
+│   ├── test_pipeline.py          # Unit tests (CI/CD)
+│   └── drift_simulator.py        # Injects fake drift data for demo
 ├── .github/
 │   └── workflows/
 │       └── ci-cd.yml             # GitHub Actions pipeline
@@ -265,6 +287,25 @@ The PSI (Population Stability Index) exporter compares:
 | < 0.10 | ✅ No drift |
 | 0.10 – 0.25 | ⚠️ Moderate drift |
 | > 0.25 | 🚨 Significant drift — retrain triggered |
+
+### Testing Drift Detection
+
+Use the drift simulator to inject fake high-risk loan data and trigger drift:
+
+```bash
+# Inject drifted data (run 3-4 times to push PSI above 0.25)
+docker exec -it spark bash -c "python3 /opt/tests/drift_simulator.py"
+
+# Watch PSI exporter detect drift
+docker exec -it spark bash -c "python3 /opt/monitoring/psi_exporter.py"
+```
+
+You should see PSI cross 0.25 and show `🚨 DRIFT DETECTED`.
+
+Reset drift data after demo:
+```bash
+docker exec -it postgres psql -U mlops -d credit_scoring -c "DELETE FROM streaming_predictions WHERE probability > 0.7;"
+```
 
 ---
 
@@ -310,6 +351,21 @@ docker compose down
 ```
 
 Data is preserved in Docker volumes. Restart anytime with `docker compose up -d`.
+
+---
+
+## 🎬 Demo Checklist
+
+```
+1. docker compose up -d
+2. Get Spark IP and update prometheus.yml
+3. docker exec -it spark bash -c "python3 /opt/monitoring/psi_exporter.py"
+4. Open Grafana → show STABLE dashboard
+5. Run drift simulator 3-4 times
+6. Watch PSI turn red → DRIFT DETECTED
+7. Trigger Airflow DAG → show automatic retrain
+8. Open MLflow → show new training run logged
+```
 
 ---
 

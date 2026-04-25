@@ -230,6 +230,9 @@ services:
     # image: apache/spark:3.5.1-python3
     image: mlops-spark:latest
     container_name: spark
+    networks:
+      mlops-net:
+        ipv4_address: 172.20.0.50
     user: root
     environment:
       - AWS_ACCESS_KEY_ID=${MINIO_ROOT_USER}
@@ -239,6 +242,7 @@ services:
       - ./data:/opt/data
       - ./mlflow:/opt/mlflow-jobs # ← add this line
       - ./monitoring:/opt/monitoring
+      - ./tests:/opt/tests # ← add this line
 
     ports:
       - "4040:4040"
@@ -277,6 +281,10 @@ volumes:
     # ─────────────────────────────────────────
     # Shared network
     # ─────────────────────────────────────────
+
 networks:
   mlops-net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16    
