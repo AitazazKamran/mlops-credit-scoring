@@ -234,6 +234,7 @@ services:
       - ./spark:/opt/spark-jobs
       - ./data:/opt/data
       - ./mlflow:/opt/mlflow-jobs # ← add this line
+      - ./monitoring:/opt/monitoring
 
     ports:
       - "4040:4040"

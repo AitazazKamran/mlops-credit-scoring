@@ -41,13 +41,12 @@ stream_count_gauge   = Gauge("stream_record_count",   "Number of stream records"
 # ─────────────────────────────────────────
 def get_connection():
     return psycopg2.connect(
-        host="127.0.0.1",
+        host="postgres",
         port=5432,
         dbname="credit_scoring",
         user="mlops",
         password="mlops123"
     )
-
 
 # ─────────────────────────────────────────
 # Load baseline (2015 gold_features)
