@@ -83,7 +83,7 @@ Registry  (streaming_predictions)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mlops-credit-scoring.git
+git clone https://github.com/AitazazKamran/mlops-credit-scoring.git
 cd mlops-credit-scoring
 ```
 
