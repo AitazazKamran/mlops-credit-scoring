@@ -226,7 +226,14 @@ def log_to_mlflow(model, metrics, feature_cols):
     print(f"\n   View at: http://localhost:5000/#/experiments")
     return run_id
 
-
+def ensure_model_registry():
+    """Create model registry entry if it doesn't exist."""
+    try:
+        client = MlflowClient(tracking_uri=MLFLOW_TRACKING_URI)
+        client.create_registered_model(MODEL_NAME)
+        print(f"✅ Model registry '{MODEL_NAME}' created")
+    except Exception:
+        print(f"✅ Model registry '{MODEL_NAME}' already exists")
 # ─────────────────────────────────────────
 # Main
 # ─────────────────────────────────────────
@@ -234,7 +241,10 @@ def main():
     print("=" * 55)
     print("  MLflow Training Pipeline — Credit Scoring")
     print("=" * 55)
-
+    # 0. Ensure model registry exists   ← ADD THIS
+    configure_artifact_store_env()
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+    ensure_model_registry()
     # 1. Load
     df = load_data()
 
