@@ -238,6 +238,8 @@ services:
 
     ports:
       - "4040:4040"
+      - "7077:7077"
+      - "8000:8000"
     command: tail -f /dev/null
     networks:
       - mlops-net
