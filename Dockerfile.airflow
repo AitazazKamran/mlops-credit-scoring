@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────
+# Airflow + all MLOps dependencies
+# Base: apache/airflow:2.6.3
+# ─────────────────────────────────────────
+FROM apache/airflow:2.6.3
+
+USER root
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+USER airflow
+
+# Install all Python dependencies
+RUN pip install --no-cache-dir \
+    kafka-python-ng \
+    pandas \
+    psycopg2-binary \
+    pyarrow \
+    numpy \
+    mlflow \
+    scikit-learn \
+    boto3
